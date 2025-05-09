@@ -172,3 +172,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Hugging Face-specific
+.cache/
+models--*/
+*.bin
+*.pth
+*.h5
+
+# Environment/secrets
+.env
