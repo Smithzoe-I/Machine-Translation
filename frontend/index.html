@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Translation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="translation-container">
+        <div class="text-box-container">
+            <div class="language-info" id="source-language-info">
+                Detecting Language
+            </div>
+            <textarea id="input-text" class="text-box" placeholder="Enter text to translate" maxlength="5000"></textarea>
+            <div class="text-info">
+                <span id="char-count">0</span> / 5000 characters
+            </div>
+        </div>
+        <div class="language-swap-container">
+            <button id="language-swap-btn" class="language-swap-btn" aria-label="Swap languages">
+                ↔️
+            </button>
+        </div>
+        <div class="text-box-container">
+            <div class="language-info" id="target-language-info">
+                Myanmar, English
+            </div>
+            <textarea id="output-text" class="text-box" placeholder="Translation" readonly></textarea>
+            <div class="output-actions">
+                <button id="copy-button" class="copy-btn">
+                    📋 Copy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
