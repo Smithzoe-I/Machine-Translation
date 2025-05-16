@@ -13,8 +13,5 @@
     "cors": "^2.8.5",
     "myanmar-tools": "latest",
     "vite": "^4.3.9"
-  },
-  "server": {
-    "port": "8000"
   }
 }
