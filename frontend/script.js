@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const charCount = document.getElementById('char-count');
     const copyButton = document.getElementById('copy-button');
 
+    // API base URL
+    const API_URL = 'http://localhost:3000';
+
     // Debounce function to limit translation frequency
     function debounce(func, delay) {
         let timeoutId;
@@ -70,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function classifyLanguage(text) {
         try {
-            const response = await fetch('http://localhost:8000/classify', {
+            const response = await fetch(`${API_URL}/classify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -112,25 +115,28 @@ document.addEventListener('DOMContentLoaded', () => {
             targetLangInfo.textContent = `Translation to: ${sourceLang === 'my' ? 'English' : 'Myanmar'}`;
         }
 
-        // Translate
-        const response = await fetch('http://localhost:8000/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text: text,
-                source_lang: sourceLang,
-                target_lang: targetLang
-            })
-        });
+        try {
+            const response = await fetch(`${API_URL}/translate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: text,
+                    source_lang: sourceLang,
+                    target_lang: targetLang
+                })
+            });
 
-        if (!response.ok) {
-            throw new Error('Translation request failed');
+            if (!response.ok) {
+                throw new Error('Translation request failed');
+            }
+
+            const data = await response.json();
+            return data.result;
+        } catch (error) {
+            throw new Error('Translation failed');
         }
-
-        const data = await response.json();
-        return data.result;
     }
 
     // Debounced translation function

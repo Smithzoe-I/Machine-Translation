@@ -1,9 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const { ZawgyiDetector } = require('myanmar-tools');
 
 const app = express();
-const detector = new ZawgyiDetector();
 
 app.use(cors());
 app.use(express.json());
@@ -33,12 +31,8 @@ app.post('/translate', (req, res) => {
     const sourceLang = source_lang || detectLanguage(text);
     const targetLang = target_lang || (sourceLang === 'my' ? 'en' : 'my');
     
-    // Convert Zawgyi to Unicode if needed
-    const zawgyiProbability = detector.getZawgyiProbability(text);
-    const normalizedText = zawgyiProbability > 0.5 ? text : text; // Add proper conversion here
-    
     // Use mock translation for now
-    const translatedText = mockTranslate(normalizedText, sourceLang, targetLang);
+    const translatedText = mockTranslate(text, sourceLang, targetLang);
     
     res.json({
         result: translatedText,
@@ -61,7 +55,7 @@ app.post('/classify', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT ;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
