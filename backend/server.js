@@ -8,7 +8,12 @@ app.use(express.json());
 
 // Mock translation function (placeholder)
 function mockTranslate(text, sourceLang, targetLang) {
-    return `[Translated from ${sourceLang} to ${targetLang}]: ${text}`;
+    if (sourceLang === 'my' && targetLang === 'en') {
+        return `[English]: ${text}`;
+    } else if (sourceLang === 'en' && targetLang === 'my') {
+        return `[မြန်မာ]: ${text}`;
+    }
+    return text;
 }
 
 // Detect language based on Myanmar characters
@@ -21,38 +26,46 @@ app.get('/', (req, res) => {
 });
 
 app.post('/translate', (req, res) => {
-    const { text, source_lang, target_lang } = req.body;
-    
-    if (!text) {
-        return res.status(400).json({ error: "No text provided" });
+    try {
+        const { text, source_lang, target_lang } = req.body;
+        
+        if (!text) {
+            return res.status(400).json({ error: "No text provided" });
+        }
+        
+        // Detect language if not specified
+        const sourceLang = source_lang || detectLanguage(text);
+        const targetLang = target_lang || (sourceLang === 'my' ? 'en' : 'my');
+        
+        // Use mock translation for now
+        const translatedText = mockTranslate(text, sourceLang, targetLang);
+        
+        res.json({
+            result: translatedText,
+            source_lang: sourceLang,
+            target_lang: targetLang
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Translation failed" });
     }
-    
-    // Detect language if not specified
-    const sourceLang = source_lang || detectLanguage(text);
-    const targetLang = target_lang || (sourceLang === 'my' ? 'en' : 'my');
-    
-    // Use mock translation for now
-    const translatedText = mockTranslate(text, sourceLang, targetLang);
-    
-    res.json({
-        result: translatedText,
-        source_lang: sourceLang,
-        target_lang: targetLang
-    });
 });
 
 app.post('/classify', (req, res) => {
-    const { text } = req.body;
-    
-    if (!text) {
-        return res.status(400).json({ error: "No text provided" });
+    try {
+        const { text } = req.body;
+        
+        if (!text) {
+            return res.status(400).json({ error: "No text provided" });
+        }
+        
+        const language = detectLanguage(text);
+        res.json({
+            language: language === 'my' ? 'Myanmar' : 'English',
+            confidence: 1.0
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Classification failed" });
     }
-    
-    const language = detectLanguage(text);
-    res.json({
-        language: language === 'my' ? 'Myanmar' : 'English',
-        confidence: 1.0
-    });
 });
 
 const PORT = 3000;

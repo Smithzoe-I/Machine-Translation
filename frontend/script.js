@@ -57,12 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
         outputText.value = tempText;
 
         // Extract current language information
-        const currentSourceLang = sourceLangInfo.textContent.replace('Detected Language: ', '');
-        const currentTargetLang = targetLangInfo.textContent.replace('Translation to: ', '');
+        const currentSourceLang = sourceLangInfo.textContent.toLowerCase().includes('myanmar') ? 'my' : 'en';
+        const currentTargetLang = targetLangInfo.textContent.toLowerCase().includes('myanmar') ? 'my' : 'en';
 
-        // Swap language info with correct formatting
-        sourceLangInfo.textContent = `Detected Language: ${currentTargetLang}`;
-        targetLangInfo.textContent = `Translation to: ${currentSourceLang}`;
+        // Update language info
+        sourceLangInfo.textContent = `Detected Language: ${currentTargetLang === 'my' ? 'Myanmar' : 'English'}`;
+        targetLangInfo.textContent = `Translation to: ${currentSourceLang === 'my' ? 'Myanmar' : 'English'}`;
 
         // Update character count
         charCount.textContent = inputText.value.length;
@@ -97,25 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let sourceLang = 'my';
         let targetLang = 'en';
 
-        const classification = await classifyLanguage(text);
-        
-        if (classification) {
-            // Update language info
-            sourceLang = classification.language.toLowerCase() === 'myanmar' ? 'my' : 'en';
-            targetLang = sourceLang === 'my' ? 'en' : 'my';
-
-            sourceLangInfo.textContent = `Detected Language: ${classification.language}`;
-            targetLangInfo.textContent = `Translation to: ${targetLang === 'my' ? 'Myanmar' : 'English'}`;
-        } else {
-            // Fallback detection
-            sourceLang = /[\u1000-\u109F]/.test(text) ? 'my' : 'en';
-            targetLang = sourceLang === 'my' ? 'en' : 'my';
-
-            sourceLangInfo.textContent = `Detected Language: ${sourceLang === 'my' ? 'Myanmar' : 'English'}`;
-            targetLangInfo.textContent = `Translation to: ${sourceLang === 'my' ? 'English' : 'Myanmar'}`;
-        }
-
         try {
+            const classification = await classifyLanguage(text);
+            
+            if (classification) {
+                sourceLang = classification.language.toLowerCase() === 'myanmar' ? 'my' : 'en';
+                targetLang = sourceLang === 'my' ? 'en' : 'my';
+
+                sourceLangInfo.textContent = `Detected Language: ${classification.language}`;
+                targetLangInfo.textContent = `Translation to: ${targetLang === 'my' ? 'Myanmar' : 'English'}`;
+            }
+
             const response = await fetch(`${API_URL}/translate`, {
                 method: 'POST',
                 headers: {
@@ -135,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             return data.result;
         } catch (error) {
+            console.error('Translation error:', error);
             throw new Error('Translation failed');
         }
     }
@@ -146,6 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Input validation
         if (!text) {
             outputText.value = '';
+            sourceLangInfo.textContent = 'Detecting Language';
+            targetLangInfo.textContent = 'Myanmar, English';
             return;
         }
 
@@ -159,10 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
             outputText.value = translatedText;
         } catch (error) {
             console.error('Translation error:', error);
-            alert('Failed to translate. Please try again.');
+            outputText.value = 'Translation failed. Please try again.';
             sourceLangInfo.textContent = 'Detecting Language';
             targetLangInfo.textContent = 'Myanmar, English';
-            outputText.value = '';
         }
     }, 500); // 500ms debounce delay
 });
